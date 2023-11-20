@@ -7,6 +7,7 @@
  #define Buzzer GPIOD, GPIO_PIN_4
 
  #include "STM8S.h"
+#include "stm8s103_serial.h" 
 
 void delay (int ms) //Function Definition 
 {
@@ -21,26 +22,38 @@ void delay (int ms) //Function Definition
 
 main()
 {
-GPIO_DeInit(GPIOC); //prepare Port C for working 
-GPIO_DeInit(GPIOD); // prepare Port D for working 
+    GPIO_DeInit(GPIOC); //prepare Port C for working 
+    GPIO_DeInit(GPIOD); // prepare Port D for working 
 
-// Declare PD4  as ush Pull Output pin
- GPIO_Init (Buzzer, GPIO_MODE_OUT_PP_LOW_SLOW); 
+    Serial_begin(9600);
+    Serial_print_string("Enter command");
+    Serial_newline();
 
-// Declare PA3 as Push Pull Output pin
- GPIO_Init (Green_LED, GPIO_MODE_OUT_PP_LOW_SLOW);
+    // Declare PD4  as ush Pull Output pin
+    GPIO_Init (Buzzer, GPIO_MODE_OUT_PP_LOW_SLOW); 
 
-//Declare PB5 as push pull Output pin
-//GPIO_Init (GPIOB, GPIO_PIN_5, GPIO_MODE_OUT_PP_LOW_SLOW);
+    // Declare PC4 as Push Pull Output pin
+    GPIO_Init (Green_LED, GPIO_MODE_OUT_PP_LOW_SLOW);
 
-while (1)
-{
 
-        GPIO_WriteHigh(Green_LED); //LED OFF
-        GPIO_WriteHigh(Buzzer); //LED OFF
-        delay (1000);
-        GPIO_WriteLow(Green_LED); //LED ON
-        GPIO_WriteLow(Buzzer); //LED ON
-        delay (1000);
-}
+    while (1)
+    {
+        if(Serial_available())
+        {
+            Serial_print_string("You have pressed: ");
+            ch = Serial_read_char();
+            Serial_print_char(ch);
+            Serial_newline();
+
+            if (ch == '0'){
+                GPIO_WriteHigh(Green_LED); //LED OFF
+                GPIO_WriteHigh(Buzzer); //LED OFF
+            }
+            if (ch == '1'){
+                GPIO_WriteLow(Green_LED); //LED ON
+                GPIO_WriteLow(Buzzer); //LED ON
+            }
+        }
+
+    }
 }
